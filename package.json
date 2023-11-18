@@ -4,23 +4,23 @@
   "description": "an app that turns musixmatch lyrics into a just dance format.",
   "main": "src/index.js",
   "scripts": {
-    "test": "node src/index.js",
-    "run": "node src/index.js"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devvjs/musix.git"
+    "url": "git+https://github.com/devvieram/musix.git"
   },
   "author": "devvie",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/devvjs/musix/issues"
+    "url": "https://github.com/devvieram/musix/issues"
   },
-  "homepage": "https://github.com/devvjs/musix#readme",
+  "homepage": "https://github.com/devvieram/musix#readme",
   "dependencies": {
     "async": "^3.2.4",
     "axios": "^1.4.0",
     "chalk": "^4.1.1",
+    "clrc": "^3.1.0",
     "inquirer": "^8.1.0"
   }
 }

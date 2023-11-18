@@ -3,15 +3,11 @@ const axios = require("axios");
 var baseURL = "https://apic-desktop.musixmatch.com/ws/1.1/";
 
 class Musixmatch {
-    constructor () {
-        this.artist = "";
-        this.track = "";
-        this.trackId = 0;
-    }
+    constructor () {}
 
     async searchByName (q_artist, q_track, q_album = "") {
         const result = await _get("track.search", {
-            q_track, q_artist
+            q_track, q_artist, q_album
         });
 
         return result;
@@ -19,14 +15,13 @@ class Musixmatch {
 
     async searchByTrackId (track_id) {
         const result = await _get("matcher.track.get", {
-            q_track, q_artist
+            track_id
         });
 
         return result;
     }
 
     async getRichLyrics (track_id) {
-        // track.richsync.get
         const result = await _get("track.richsync.get", {
             track_id
         });
@@ -34,16 +29,24 @@ class Musixmatch {
         return JSON.parse(result["richsync"]["richsync_body"]);
     }
 
-    getLRCSubtitles (track_id) {
-        // track.subtitle.get
+    async getLRCSubtitles (track_id) {
+        const result = await _get("track.subtitle.get", {
+            track_id
+        });
+
+        return result["subtitle"]["subtitle_body"];
     }
 
-    getSongMetadata (track_id) {
-        // track.lyrics.get
+    async getSongMetadata (track_id) {
+        const result = await _get("track.get", {
+            track_id
+        });
+
+        return result["track"];
     }
 }
 
-// Request to MusixMatch API.
+// Request MusixMatch API.
 async function _get(method, params) {
     // Perform request
     try {
