@@ -48,3 +48,4 @@ for a better experience with these lyrics, you can make the lyrics' color white 
 ]
 ```
 ### in-game:
+https://github.com/devvieram/musix/assets/79544527/17348b72-2b67-46e5-8a95-f1e0b1a139c2
