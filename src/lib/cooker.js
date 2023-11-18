@@ -18,7 +18,6 @@ class Cooker {
                     seconds: trackInfo["track_length"]
                 },
                 links: {
-                    spotify: `https:\/\/open.spotify.com\/track\/${trackInfo["track_spotify_id"]}`
                 }
             };
 
@@ -28,6 +27,14 @@ class Cooker {
 
             if (trackInfo["secondary_genres"]["music_genre_list"].length !== 0) {
                 cookedTrackInfo["genres"].push(trackInfo["primary_genres"]["music_genre_list"][0]["music_genre"]["music_genre_name"])
+            }
+
+            if (trackInfo["track_spotify_id"]) {
+                cookedTrackInfo["links"]["spotify"] = `https:\/\/open.spotify.com\/track\/${trackInfo["track_spotify_id"]}`;
+            }
+
+            if (trackInfo["track_share_url"]) {
+                cookedTrackInfo["links"]["musixmatch"] = trackInfo["track_share_url"].split("\?")[0]
             }
     
             await writeToFile("metadata", "json", cookedTrackInfo);

@@ -1,5 +1,5 @@
 # Output
-output/
+output/*.json
 
 # Logs
 logs
