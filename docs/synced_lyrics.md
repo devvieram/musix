@@ -53,5 +53,5 @@ these types of lyrics are meant to give you a more Just Dance-y experience, by b
 ]
 ```
 ### in-game:
+https://github.com/devvieram/musix/assets/79544527/b3b4f14e-1f38-4491-ba8d-93cf57e2efcd
 
-https://github.com/devvieram/musix/blob/main/docs/bin/rich_lyrics-in-game.mp4
