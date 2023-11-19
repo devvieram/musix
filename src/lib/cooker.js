@@ -45,7 +45,7 @@ class Cooker {
         }
     }
 
-    async cookLRCLyrics (subtitles_body) {
+    async cookLRCLyrics (subtitles_body, offset = 0) {
         try {
             if (typeof subtitles_body !== "string") throw Error("Something happened! subtitles_body did not return a string.");
 
@@ -61,7 +61,7 @@ class Cooker {
                 }
 
                 cookedLyrics.push({
-                    "time": Math.round(startMillisecond),
+                    "time": Math.round(offset + startMillisecond),
                     "duration": Math.round(parsedData[i+1].startMillisecond - startMillisecond),
                     "text": content.trim(),
                     "isLineEnding": 1
@@ -77,7 +77,7 @@ class Cooker {
         }
     }
 
-    async cookRichLyrics (richsync_body) {
+    async cookRichLyrics (richsync_body, offset = 0) {
         try {
             if (!Array.isArray(richsync_body)) throw Error("Something happened! richsync_body did not return an array.");
         
@@ -93,7 +93,7 @@ class Cooker {
                     // If there's no more strings left in the lyrics line
                     if (!l[i + 1]) {
                         cookedLyrics.push({
-                            "time": Math.round(ts + parseTime(l[i].o)),
+                            "time": Math.round(offset + ts + parseTime(l[i].o)),
                             "duration": Math.round(te - (ts + parseTime(l[i].o))),
                             "text": l[i].c,
                             "isLineEnding": 1
@@ -103,7 +103,7 @@ class Cooker {
 
                     // If there are strings left in the lyric line
                     cookedLyrics.push({
-                        "time": ts + parseTime(l[i].o),
+                        "time": offset + ts + parseTime(l[i].o),
                         "duration": parseTime(l[i + 1].o) - parseTime(l[i].o),
                         "text": l[i].c + l[i + 1].c,
                         "isLineEnding": (l[i + 2] ? 0 : 1)
@@ -140,9 +140,13 @@ function secondsToTime(seconds) {
 }
 
 async function writeToFile(name, format, content) {
+    const fileName = `${global.trackInfo.track_name.replace(/[\\/:"*?<>|]/g, '_')}_${name}.${format}`;
+    const outputPath = `output/${fileName}`;
+    // if an older file exists, remove it 
+    if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
     await fs.writeFile(
-        `output/${global.trackInfo.track_name.replace(/[\\/:"*?<>|]/g, '_')}_${name}.${format}`, 
-        JSON.stringify(content, null, 2), 
+        outputPath, 
+        JSON.stringify(content, null, 2),
         (err) => { if (err) throw err; }
     )
 }

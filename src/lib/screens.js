@@ -1,3 +1,4 @@
+const fs = require("fs");
 const chalk = require("chalk");
 const inquirer = require("inquirer");
 const readline = require("readline");
@@ -11,6 +12,9 @@ class Screens {
     async init () {
         global.trackInfo = {};
         console.clear();
+
+        // Create output folder if it does not exist
+        if (!fs.existsSync("./output")) fs.mkdirSync("./output", { recursive: true });
 
         console.log(`welcome to ${chalk.bold("musix")}, a tool made by ${chalk.cyan("devvie")}!`);
         console.log(`an app that turns ${chalk.bold("musixmatch")} lyrics into a ${chalk.bold("just dance")} format.\n`)
@@ -70,6 +74,7 @@ class Screens {
             
             var richsyncResults = searchResults["track_list"].filter(track => track?.track.has_richsync == 1);
             
+            // no rich sync results
             if (richsyncResults.length == 0) {
                 console.log("\ncouldn't find any synced lyrics with the search info.\ntry again with different/more info,\notherwise there's no synced lyrics available.");
                 await PETC("\npress enter to go back to the main menu.");
@@ -85,6 +90,7 @@ class Screens {
                 richsyncChoices.push(`${track["artist_name"]} — ${track["track_name"]} • ${parseSeconds(track["track_length"])} • ${track["album_name"]} ${(track["explicit"] == 1) ? "[Explicit]" : ""}`)
             })
 
+            // select song from search result
             inquirer.prompt([
                 {
                     type: "list",
@@ -104,7 +110,9 @@ class Screens {
 
                 var richSyncLyrics = await Musixmatch.getRichLyrics(track["track_id"]);
 
-                await Cooker.cookRichLyrics(richSyncLyrics);
+                const offset = await this.askOffset();
+
+                await Cooker.cookRichLyrics(richSyncLyrics, offset);
 
                 console.log(`\ncooked lyrics for \"${track["track_name"]}\"!\nhave fun! :)`);
 
@@ -175,7 +183,9 @@ class Screens {
 
                 var subtitleLyrics = await Musixmatch.getLRCSubtitles(track["track_id"]);
 
-                await Cooker.cookLRCLyrics(subtitleLyrics);
+                const offset = await this.askOffset();
+
+                await Cooker.cookLRCLyrics(subtitleLyrics, offset);
 
                 console.log(`\ncooked subtitles for \"${track["track_name"]}\"!\nhave fun! :)`);
 
@@ -253,6 +263,51 @@ class Screens {
             })
         })
     }
+
+    async askOffset() {
+        var fixedOffset = 0;
+
+        await inquirer.prompt([
+            {
+                type: "confirm",
+                prefix: "",
+                message: "do you want to adjust the offset?",
+                name: "adjustOffset"
+            }
+        ]).then(async(result) => {
+            var adjustOffset = result["adjustOffset"]
+            if (!adjustOffset) return 0;
+            
+            // if yes ask for offset
+            await inquirer.prompt([
+                {
+                    type: "string",
+                    prefix: "",
+                    message: "enter the start of first lyric (in ms or MM:SS.MS) format (e.g: 4504 or 00:04.504)",
+                    name: "offset"
+                }
+            ]).then(async(result) => {
+                var offset = result["offset"];
+    
+                if (offset.includes(':')) {
+                    // if the offset is in MM:SS.MS format
+                    const parts = offset.split(':');
+                    const minutes = parseInt(parts[0], 10);
+                    const secondsAndMS = parts[1].split('.') || 0;
+                    const seconds = parseInt(secondsAndMS[0], 10);
+                    const milliseconds = parseInt(secondsAndMS[1], 10) || 0;
+            
+                    fixedOffset =  minutes * 60 * 1000 + seconds * 1000 + milliseconds;
+                } else {
+                    // if the offset is in pure milliseconds format
+                    fixedOffset = parseInt(offset);
+                };
+                console.log("offset set as:", fixedOffset)
+            });
+        });
+
+        return fixedOffset;
+    };
 }
 
 module.exports = new Screens();
